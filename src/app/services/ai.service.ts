@@ -160,11 +160,18 @@ export class AiService {
     systemPrompt: string,
     messages: { role: 'user' | 'assistant'; content: string }[]
   ): Promise<string> {
+    const key = environment.groqApiKey?.trim();
+    if (!key || key === 'YOUR_GROQ_API_KEY') {
+      throw new Error(
+        'Groq API key is missing. On Vercel: Settings → Environment Variables → add GROQ_API_KEY, then redeploy.'
+      );
+    }
+
     const response = await fetch(GROQ_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${environment.groqApiKey}`,
+        Authorization: `Bearer ${key}`,
       },
       body: JSON.stringify({
         model: MODEL,
@@ -176,6 +183,11 @@ export class AiService {
 
     if (!response.ok) {
       const errText = await response.text().catch(() => '');
+      if (response.status === 401) {
+        throw new Error(
+          'Groq API rejected the key (401). Check GROQ_API_KEY in Vercel environment variables and redeploy.'
+        );
+      }
       throw new Error(`AI request failed (${response.status}). ${errText.slice(0, 200)}`);
     }
 

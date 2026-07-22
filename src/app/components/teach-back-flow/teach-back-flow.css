@@ -159,14 +159,15 @@
 }
 
 .solana-section {
-  border-color: rgba(153, 69, 255, 0.4) !important;
-  background: rgba(153, 69, 255, 0.06) !important;
+  border-color: var(--border) !important;
+  background: var(--surface-elevated) !important;
   margin: 1.5rem 0;
 }
 
 .solana-title {
-  color: var(--solana) !important;
+  color: var(--wallet) !important;
   margin: 0 0 0.75rem;
+  font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
 .solana-desc,
@@ -200,9 +201,9 @@
 .wallet-setup {
   margin: 0 0 1rem;
   padding: 1rem;
-  border: 1px dashed rgba(153, 69, 255, 0.35);
-  border-radius: var(--radius);
-  background: rgba(153, 69, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-warm);
 }
 
 .wallet-setup-compact {
@@ -211,9 +212,10 @@
 
 .setup-heading {
   margin: 0 0 0.75rem;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--solana);
+  color: var(--accent);
+  font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
 .setup-steps {
@@ -229,7 +231,7 @@
 }
 
 .setup-steps a {
-  color: var(--solana);
+  color: var(--accent);
 }
 
 .setup-tip {
@@ -244,13 +246,14 @@
 }
 
 .setup-warning a {
-  color: var(--solana);
+  color: var(--accent);
 }
 
 .explorer-link {
-  color: var(--solana);
+  color: var(--wallet);
   text-decoration: none;
   font-weight: 500;
+  border-bottom: 1px solid var(--wallet);
 }
 
 .explorer-link:hover {
@@ -269,8 +272,8 @@
 
 .below-mastery {
   margin: 1.5rem 0;
-  border-color: rgba(250, 166, 26, 0.35) !important;
-  background: rgba(250, 166, 26, 0.04) !important;
+  border-color: var(--border) !important;
+  background: var(--bg-warm) !important;
 }
 
 .full-explanation {
@@ -308,20 +311,19 @@
 
 .resource-links a {
   display: block;
-  padding: 0.75rem 1rem;
+  padding: 0.875rem 1rem;
   background: var(--surface-elevated);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  color: var(--cyan);
+  color: var(--text);
   text-decoration: none;
   font-size: 0.9375rem;
-  font-weight: 500;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color 0.2s, color 0.2s;
 }
 
 .resource-links a:hover {
-  border-color: var(--cyan);
-  background: rgba(0, 229, 255, 0.06);
+  border-color: var(--accent-dim);
+  color: var(--accent);
 }
 
 .try-again {

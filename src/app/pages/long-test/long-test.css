@@ -111,11 +111,11 @@
 }
 
 .grade-b {
-  border-color: var(--cyan);
-  background: rgba(0, 229, 255, 0.08);
+  border-color: var(--accent-dim);
+  background: var(--accent-soft);
 }
 .grade-b .grade-letter {
-  color: var(--cyan);
+  color: var(--accent);
 }
 
 .grade-c {
