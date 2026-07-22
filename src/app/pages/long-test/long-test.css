@@ -219,3 +219,29 @@
     transform: rotate(360deg);
   }
 }
+
+@media (max-width: 640px) {
+  .page-subtitle {
+    margin-bottom: 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .grade-display {
+    padding: 1.5rem 1rem;
+    margin: 1.25rem 0 0.875rem;
+  }
+
+  .grade-letter {
+    font-size: 3rem;
+  }
+
+  .option {
+    padding: 0.875rem;
+    font-size: 0.875rem;
+    min-height: 44px;
+  }
+
+  .q-text {
+    font-size: 0.9375rem;
+  }
+}

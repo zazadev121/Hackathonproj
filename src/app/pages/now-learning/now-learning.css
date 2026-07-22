@@ -198,3 +198,51 @@
   border-color: var(--red);
   color: var(--red);
 }
+
+@media (max-width: 640px) {
+  .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-add-topic {
+    width: 100%;
+    white-space: normal;
+    text-align: center;
+    min-height: 44px;
+  }
+
+  .topic-card {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 0.625rem;
+  }
+
+  .topic-main {
+    grid-column: 1 / -1;
+  }
+
+  .btn-continue {
+    grid-column: 1;
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .btn-remove {
+    grid-column: 2;
+    grid-row: 2;
+    width: 44px;
+    height: 44px;
+    align-self: stretch;
+  }
+
+  .topic-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .topic-header h3 {
+    word-break: break-word;
+  }
+}

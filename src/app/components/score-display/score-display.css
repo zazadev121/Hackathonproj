@@ -47,3 +47,13 @@
   border-radius: 999px;
   transition: width 0.05s linear;
 }
+
+@media (max-width: 640px) {
+  .score-value {
+    font-size: 1.625rem;
+  }
+
+  .score-display {
+    padding: 0.875rem;
+  }
+}
