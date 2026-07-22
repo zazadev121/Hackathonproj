@@ -8,19 +8,17 @@ import {
   PendingAction,
 } from '../../models/ai.models';
 import { AiService } from '../../services/ai.service';
+import { I18nService } from '../../services/i18n.service';
 import { LearningStorageService } from '../../services/learning-storage.service';
 import { SolanaError, SolanaService } from '../../services/solana.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { ScoreDisplay } from '../score-display/score-display';
 
-const EXAMPLE_TOPICS = [
-  'English verb tenses',
-  'Quadratic equations',
-  'World War II causes',
-];
+const EXAMPLE_KEYS = ['examples.englishTenses', 'examples.quadratic', 'examples.wwii'] as const;
 
 @Component({
   selector: 'app-teach-back-flow',
-  imports: [FormsModule, ScoreDisplay],
+  imports: [FormsModule, ScoreDisplay, TranslatePipe],
   templateUrl: './teach-back-flow.html',
   styleUrl: './teach-back-flow.css',
 })
@@ -29,8 +27,9 @@ export class TeachBackFlow implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly learningStorage = inject(LearningStorageService);
   readonly solana = inject(SolanaService);
+  readonly i18n = inject(I18nService);
 
-  readonly exampleTopics = EXAMPLE_TOPICS;
+  readonly exampleKeys = EXAMPLE_KEYS;
 
   readonly screen = signal<FlowScreen>('topic');
   readonly topic = signal('');
@@ -46,6 +45,7 @@ export class TeachBackFlow implements OnInit {
 
   readonly mintSignature = signal<string | null>(null);
   readonly mintError = signal<string | null>(null);
+  readonly fromLearning = signal(false);
 
   readonly canSubmitTopic = computed(
     () => this.topic().trim().length > 0 && this.explanation().trim().length > 0 && !this.loading()
@@ -62,17 +62,24 @@ export class TeachBackFlow implements OnInit {
       !this.mintSignature()
   );
 
+  readonly walletAddressShort = computed(() => {
+    const addr = this.solana.walletAddress();
+    if (!addr) return '';
+    return `${addr.slice(0, 4)}…${addr.slice(-4)}`;
+  });
+
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
       const t = params['topic'];
       if (typeof t === 'string' && t.trim()) {
         this.topic.set(t.trim());
       }
+      this.fromLearning.set(params['from'] === 'learning');
     });
   }
 
-  selectTopic(example: string): void {
-    this.topic.set(example);
+  selectTopic(key: (typeof EXAMPLE_KEYS)[number]): void {
+    this.topic.set(this.i18n.t(key));
   }
 
   async submitExplanation(): Promise<void> {
@@ -96,12 +103,12 @@ export class TeachBackFlow implements OnInit {
     try {
       await this.solana.connectWallet();
       if (!this.solana.hasEnoughDevnetSol()) {
-        this.mintError.set(
-          'Connected, but devnet balance is low. Follow the setup steps below to fund your wallet.'
-        );
+        this.mintError.set(this.i18n.t('teachBack.errorLowBalance'));
       }
     } catch (err) {
-      this.mintError.set(err instanceof SolanaError ? err.message : 'Could not connect wallet.');
+      this.mintError.set(
+        err instanceof SolanaError ? err.message : this.i18n.t('teachBack.errorConnect')
+      );
     }
   }
 
@@ -117,7 +124,9 @@ export class TeachBackFlow implements OnInit {
       const sig = await this.solana.mintProofOfMastery(this.topic(), result.final_score);
       this.mintSignature.set(sig);
     } catch (err) {
-      this.mintError.set(err instanceof SolanaError ? err.message : 'Mint failed. Try again.');
+      this.mintError.set(
+        err instanceof SolanaError ? err.message : this.i18n.t('teachBack.errorMint')
+      );
     }
   }
 
@@ -149,7 +158,7 @@ export class TeachBackFlow implements OnInit {
       this.grading.set(result);
       this.screen.set('grading');
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'Something went wrong. Please retry.');
+      this.error.set(err instanceof Error ? err.message : this.i18n.t('teachBack.errorGeneric'));
     } finally {
       this.loading.set(false);
     }
@@ -173,7 +182,7 @@ export class TeachBackFlow implements OnInit {
       this.learningStorage.saveTeachBackScore(this.topic().trim(), result.final_score);
       this.screen.set('final');
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'Something went wrong. Please retry.');
+      this.error.set(err instanceof Error ? err.message : this.i18n.t('teachBack.errorGeneric'));
     } finally {
       this.loading.set(false);
     }

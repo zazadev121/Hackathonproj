@@ -41,6 +41,24 @@ export class LearningStorageService {
     return this.getTopics().find((t) => t.topic.trim().toLowerCase() === normalized);
   }
 
+  addTopic(topic: string): LearningTopic {
+    const trimmed = topic.trim();
+    const existing = this.getTopicByName(trimmed);
+    if (existing) return existing;
+
+    const entry: LearningTopic = {
+      id: crypto.randomUUID(),
+      topic: trimmed,
+      scores: [],
+      lastScore: 0,
+      updatedAt: Date.now(),
+    };
+    const topics = this.getTopics();
+    topics.unshift(entry);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(topics));
+    return entry;
+  }
+
   private addScore(topic: string, record: ScoreRecord): LearningTopic {
     const trimmed = topic.trim();
     const topics = this.getTopics();

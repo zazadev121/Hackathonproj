@@ -76,8 +76,8 @@
 }
 
 .feedback-section.correct {
-  border-color: rgba(22, 163, 74, 0.25);
-  background: rgba(22, 163, 74, 0.04);
+  border-color: var(--feedback-correct-border);
+  background: var(--feedback-correct-bg);
 }
 
 .feedback-section.correct h3,
@@ -86,8 +86,8 @@
 }
 
 .feedback-section.wrong {
-  border-color: rgba(220, 38, 38, 0.2);
-  background: rgba(220, 38, 38, 0.04);
+  border-color: var(--feedback-wrong-border);
+  background: var(--feedback-wrong-bg);
 }
 
 .feedback-section.wrong h3,
@@ -96,8 +96,8 @@
 }
 
 .feedback-section.missed {
-  border-color: rgba(217, 119, 6, 0.25);
-  background: rgba(217, 119, 6, 0.04);
+  border-color: var(--feedback-missed-border);
+  background: var(--feedback-missed-bg);
 }
 
 .feedback-section.missed h3,

@@ -2,15 +2,43 @@
   <header class="header">
     <div class="header-top">
       <h1 class="logo"><a routerLink="/">TeachBack</a></h1>
-      <nav class="nav">
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-          TeachBack
-        </a>
-        <a routerLink="/learning" routerLinkActive="active">Now Learning</a>
-        <a routerLink="/test" routerLinkActive="active">Long Test</a>
-      </nav>
+
+      <div class="header-actions">
+        <nav class="nav">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            {{ 'nav.teachBack' | t }}
+          </a>
+          <a routerLink="/learning" routerLinkActive="active">{{ 'nav.nowLearning' | t }}</a>
+          <a routerLink="/test" routerLinkActive="active">{{ 'nav.longTest' | t }}</a>
+        </nav>
+
+        <div class="prefs">
+          <select
+            class="lang-select"
+            [ngModel]="i18n.lang()"
+            (ngModelChange)="setLang($event)"
+            [attr.aria-label]="'lang.en' | t"
+          >
+            <option value="en">{{ 'lang.en' | t }}</option>
+            <option value="ka">{{ 'lang.ka' | t }}</option>
+          </select>
+
+          <button
+            type="button"
+            class="theme-toggle"
+            (click)="theme.toggle()"
+            [attr.aria-label]="(theme.theme() === 'light' ? 'theme.dark' : 'theme.light') | t"
+          >
+            @if (theme.theme() === 'light') {
+              <span aria-hidden="true">🌙</span>
+            } @else {
+              <span aria-hidden="true">☀️</span>
+            }
+          </button>
+        </div>
+      </div>
     </div>
-    <p class="tagline">Study smarter — test yourself before the real exam.</p>
+    <p class="tagline">{{ 'tagline' | t }}</p>
   </header>
   <main class="main">
     <router-outlet />

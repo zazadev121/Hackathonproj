@@ -1,4 +1,6 @@
-import { Component, effect, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { TranslationKey } from '../../i18n/translations';
+import { I18nService } from '../../services/i18n.service';
 
 @Component({
   selector: 'app-score-display',
@@ -6,14 +8,22 @@ import { Component, effect, input, signal } from '@angular/core';
   styleUrl: './score-display.css',
 })
 export class ScoreDisplay {
+  private readonly i18n = inject(I18nService);
+
   readonly score = input.required<number>();
-  readonly label = input('Understanding Score');
+  readonly labelKey = input<TranslationKey>('score.understanding');
 
   readonly displayScore = signal(0);
   readonly barWidth = signal(0);
 
+  readonly label = computed(() => {
+    this.i18n.lang();
+    return this.i18n.t(this.labelKey());
+  });
+
   constructor() {
     effect((onCleanup) => {
+      this.i18n.lang();
       const target = Math.max(0, Math.min(100, this.score()));
       const duration = 1200;
       const start = performance.now();

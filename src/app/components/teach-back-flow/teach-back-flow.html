@@ -2,49 +2,60 @@
   @if (error()) {
     <div class="error-banner fade-in">
       <p>{{ error() }}</p>
-      <button type="button" class="btn-secondary" (click)="retryLastAction()">Retry</button>
+      <button type="button" class="btn-secondary" (click)="retryLastAction()">
+        {{ 'common.retry' | t }}
+      </button>
     </div>
   }
 
   @switch (screen()) {
     @case ('topic') {
       <section class="screen fade-in">
-        <h2 class="screen-title">What do you want to test?</h2>
-        <p class="screen-subtitle">Explain a topic like you're teaching a beginner — the AI grades your understanding.</p>
+        @if (fromLearning() && topic()) {
+          <h2 class="screen-title">{{ 'teachBack.explainYourTopic' | t: { topic: topic() } }}</h2>
+          <p class="screen-subtitle">{{ 'teachBack.subtitle' | t }}</p>
+        } @else {
+          <h2 class="screen-title">{{ 'teachBack.whatToTest' | t }}</h2>
+          <p class="screen-subtitle">{{ 'teachBack.subtitle' | t }}</p>
+        }
 
-        <label class="field-label" for="topic">Topic</label>
+        <label class="field-label" for="topic">{{ 'common.topic' | t }}</label>
         <input
           id="topic"
           class="input"
           type="text"
-          placeholder="e.g. CSS Flexbox, Photosynthesis, SQL joins…"
+          [placeholder]="'teachBack.topicPlaceholder' | t"
           [ngModel]="topic()"
           (ngModelChange)="topic.set($event)"
-          [disabled]="loading()"
+          [disabled]="loading() || (fromLearning() && !!topic())"
+          [class.input-locked]="fromLearning() && !!topic()"
         />
 
-        <div class="chips">
-          @for (example of exampleTopics; track example) {
-            <button
-              type="button"
-              class="chip"
-              (click)="selectTopic(example)"
-              [disabled]="loading()"
-            >
-              {{ example }}
-            </button>
-          }
-        </div>
+        @if (!fromLearning()) {
+          <div class="chips">
+            @for (key of exampleKeys; track key) {
+              <button
+                type="button"
+                class="chip"
+                (click)="selectTopic(key)"
+                [disabled]="loading()"
+              >
+                {{ key | t }}
+              </button>
+            }
+          </div>
+        }
 
-        <label class="field-label" for="explanation">Your explanation</label>
+        <label class="field-label" for="explanation">{{ 'teachBack.explanation' | t }}</label>
         <textarea
           id="explanation"
           class="textarea"
           rows="8"
-          placeholder="Explain it like you're teaching a beginner…"
+          [placeholder]="'teachBack.explanationPlaceholder' | t"
           [ngModel]="explanation()"
           (ngModelChange)="explanation.set($event)"
           [disabled]="loading()"
+          [attr.autofocus]="fromLearning() && topic() ? '' : null"
         ></textarea>
 
         <button
@@ -55,9 +66,9 @@
         >
           @if (loading()) {
             <span class="spinner"></span>
-            Analyzing your explanation…
+            {{ 'teachBack.analyzing' | t }}
           } @else {
-            Submit
+            {{ 'common.submit' | t }}
           }
         </button>
       </section>
@@ -66,13 +77,13 @@
     @case ('grading') {
       @if (grading(); as g) {
         <section class="screen fade-in">
-          <h2 class="screen-title">Your results for "{{ topic() }}"</h2>
+          <h2 class="screen-title">{{ 'teachBack.resultsFor' | t: { topic: topic() } }}</h2>
 
-          <app-score-display [score]="g.score" />
+          <app-score-display [score]="g.score" [labelKey]="'score.understanding'" />
 
           @if (g.correct_points.length) {
             <div class="feedback-section correct">
-              <h3>What you got right</h3>
+              <h3>{{ 'teachBack.gotRight' | t }}</h3>
               <ul>
                 @for (point of g.correct_points; track point) {
                   <li><span class="icon">✓</span>{{ point }}</li>
@@ -83,7 +94,7 @@
 
           @if (g.wrong_points.length) {
             <div class="feedback-section wrong">
-              <h3>What you got wrong</h3>
+              <h3>{{ 'teachBack.gotWrong' | t }}</h3>
               <ul>
                 @for (item of g.wrong_points; track item.claim) {
                   <li>
@@ -97,7 +108,7 @@
 
           @if (g.missed_points.length) {
             <div class="feedback-section missed">
-              <h3>What you missed</h3>
+              <h3>{{ 'teachBack.missed' | t }}</h3>
               <ul>
                 @for (point of g.missed_points; track point) {
                   <li><span class="icon">!</span>{{ point }}</li>
@@ -107,12 +118,12 @@
           }
 
           <div class="follow-up card">
-            <h3>Follow-up question</h3>
+            <h3>{{ 'teachBack.followUp' | t }}</h3>
             <p class="follow-up-question">{{ g.follow_up_question }}</p>
             <textarea
               class="textarea"
               rows="4"
-              placeholder="Your answer…"
+              [placeholder]="'teachBack.yourAnswer' | t"
               [ngModel]="followUpAnswer()"
               (ngModelChange)="followUpAnswer.set($event)"
               [disabled]="loading()"
@@ -125,9 +136,9 @@
             >
               @if (loading()) {
                 <span class="spinner"></span>
-                Evaluating…
+                {{ 'teachBack.evaluating' | t }}
               } @else {
-                Submit answer
+                {{ 'teachBack.submitAnswer' | t }}
               }
             </button>
           </div>
@@ -138,21 +149,25 @@
     @case ('final') {
       @if (finalResult(); as f) {
         <section class="screen fade-in">
-          <h2 class="screen-title">Final round — "{{ topic() }}"</h2>
+          <h2 class="screen-title">{{ 'teachBack.finalRound' | t: { topic: topic() } }}</h2>
 
           <div
             class="verdict"
             [class.verdict-yes]="f.follow_up_correct"
             [class.verdict-no]="!f.follow_up_correct"
           >
-            {{ f.follow_up_correct ? 'Follow-up: Correct' : 'Follow-up: Incorrect' }}
+            {{
+              f.follow_up_correct
+                ? ('teachBack.followUpCorrect' | t)
+                : ('teachBack.followUpIncorrect' | t)
+            }}
           </div>
           <p class="feedback-text">{{ f.follow_up_feedback }}</p>
 
-          <app-score-display [score]="f.final_score" label="Final Score" />
+          <app-score-display [score]="f.final_score" [labelKey]="'teachBack.finalScore'" />
 
           <div class="feedback-section neutral">
-            <h3>Complete explanation</h3>
+            <h3>{{ 'teachBack.completeExplanation' | t }}</h3>
             <ul>
               @for (bullet of f.complete_explanation_bullets; track bullet) {
                 <li>{{ bullet }}</li>
@@ -162,11 +177,10 @@
 
           @if (f.final_score >= 80) {
             <div class="solana-section card">
-              <h3 class="solana-title">Proof of Mastery</h3>
+              <h3 class="solana-title">{{ 'teachBack.proofOfMastery' | t }}</h3>
               @if (mintSignature()) {
                 <p class="solana-success">
-                  Your understanding of <strong>{{ topic() }}</strong> is now verifiably recorded on
-                  Solana — a permanent, portable credential you own, not just a score in our database.
+                  {{ 'teachBack.solanaSuccess' | t: { topic: topic() } }}
                 </p>
                 <a
                   class="explorer-link"
@@ -174,48 +188,38 @@
                   target="_blank"
                   rel="noopener"
                 >
-                  View on Solana Explorer →
+                  {{ 'teachBack.viewExplorer' | t }}
                 </a>
               } @else {
-                <p class="solana-desc">
-                  Score 80+ unlocked! Mint your on-chain credential on Solana devnet.
-                </p>
-                <p class="phantom-note">
-                  A Phantom console warning on page load is normal and does not affect minting.
-                </p>
+                <p class="solana-desc">{{ 'teachBack.scoreUnlocked' | t }}</p>
+                <p class="phantom-note">{{ 'teachBack.phantomNote' | t }}</p>
                 @if (mintError()) {
                   <p class="solana-error">{{ mintError() }}</p>
                 }
 
                 @if (!solana.isPhantomInstalled()) {
                   <div class="wallet-setup">
-                    <p class="setup-heading">Wallet setup (one-time, ~2 min)</p>
+                    <p class="setup-heading">{{ 'teachBack.walletSetup' | t }}</p>
                     <ol class="setup-steps">
                       <li>
-                        Install
+                        {{ 'teachBack.setupStep1' | t }}
+                        —
                         <a href="https://phantom.app/download" target="_blank" rel="noopener">Phantom</a>
-                        for Chrome, Edge, or Brave
                       </li>
-                      <li>Create a new wallet in Phantom (save your recovery phrase)</li>
+                      <li>{{ 'teachBack.setupStep2' | t }}</li>
+                      <li>{{ 'teachBack.setupStep3' | t }}</li>
+                      <li>{{ 'teachBack.setupStep4' | t }}</li>
                       <li>
-                        Switch Phantom to <strong>Devnet</strong>: open Phantom → click the network
-                        name at the top (e.g. "Mainnet") → select <strong>Devnet</strong>
-                      </li>
-                      <li>Copy your wallet address from Phantom</li>
-                      <li>
-                        Get free SOL at
+                        {{ 'teachBack.setupStep5' | t }}
+                        —
                         <a href="https://faucet.solana.com/" target="_blank" rel="noopener">faucet.solana.com</a>
-                        (paste address, choose Devnet, request airdrop)
                       </li>
-                      <li>Refresh this page, then click Connect Wallet below</li>
+                      <li>{{ 'teachBack.setupStep6' | t }}</li>
                     </ol>
                   </div>
                 } @else if (!solana.walletAddress()) {
                   <div class="wallet-setup wallet-setup-compact">
-                    <p class="setup-tip">
-                      Make sure Phantom is on <strong>Devnet</strong> (network selector at top of
-                      Phantom). Mainnet wallets won't work for this demo.
-                    </p>
+                    <p class="setup-tip">{{ 'teachBack.devnetTip' | t }}</p>
                   </div>
                   <button
                     type="button"
@@ -224,26 +228,28 @@
                     (click)="connectWallet()"
                   >
                     @if (solana.isConnecting()) {
-                      Connecting…
+                      {{ 'teachBack.connecting' | t }}
                     } @else {
-                      Connect Wallet
+                      {{ 'teachBack.connectWallet' | t }}
                     }
                   </button>
                 } @else {
                   <p class="wallet-connected">
-                    Connected: {{ solana.walletAddress()!.slice(0, 4) }}…{{
-                      solana.walletAddress()!.slice(-4)
-                    }}
+                    {{ 'teachBack.connected' | t: { address: walletAddressShort() } }}
                     @if (solana.devnetBalance() !== null) {
-                      · {{ solana.devnetBalance()!.toFixed(4) }} SOL (devnet)
+                      ·
+                      {{
+                        'teachBack.devnetBalance' | t: {
+                          balance: solana.devnetBalance()!.toFixed(4)
+                        }
+                      }}
                     }
                   </p>
                   @if (solana.devnetBalance() !== null && !solana.hasEnoughDevnetSol()) {
                     <div class="wallet-setup wallet-setup-compact">
                       <p class="setup-tip setup-warning">
-                        Balance too low to mint. Get devnet SOL at
-                        <a href="https://faucet.solana.com/" target="_blank" rel="noopener">faucet.solana.com</a>,
-                        then refresh this page.
+                        {{ 'teachBack.lowBalance' | t }}
+                        <a href="https://faucet.solana.com/" target="_blank" rel="noopener">faucet.solana.com</a>
                       </p>
                     </div>
                   }
@@ -254,9 +260,9 @@
                     (click)="mintProof()"
                   >
                     @if (solana.isMinting()) {
-                      Minting…
+                      {{ 'teachBack.minting' | t }}
                     } @else {
-                      Mint Proof of Mastery
+                      {{ 'teachBack.mintProof' | t }}
                     }
                   </button>
                 }
@@ -264,14 +270,11 @@
             </div>
           } @else {
             <div class="below-mastery card">
-              <p class="mint-gate">
-                Score 80+ to mint your on-chain proof of mastery. Keep studying — here's everything
-                you need to master this topic:
-              </p>
+              <p class="mint-gate">{{ 'teachBack.belowMastery' | t }}</p>
 
               @if (f.full_explanation) {
                 <div class="full-explanation">
-                  <h3>Full topic explanation</h3>
+                  <h3>{{ 'teachBack.fullExplanation' | t }}</h3>
                   @for (paragraph of f.full_explanation.split('\n\n'); track paragraph) {
                     @if (paragraph.trim()) {
                       <p>{{ paragraph.trim() }}</p>
@@ -282,7 +285,7 @@
 
               @if (f.resource_links.length) {
                 <div class="resource-links">
-                  <h3>Learn more</h3>
+                  <h3>{{ 'teachBack.learnMore' | t }}</h3>
                   <ul>
                     @for (link of f.resource_links; track link.url) {
                       <li>
@@ -298,7 +301,7 @@
           }
 
           <button type="button" class="btn-secondary try-again" (click)="resetFlow()">
-            Try another topic
+            {{ 'teachBack.tryAnother' | t }}
           </button>
         </section>
       }

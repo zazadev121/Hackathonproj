@@ -1,11 +1,47 @@
 <section class="page fade-in">
-  <h2 class="page-title">Now Learning</h2>
-  <p class="page-subtitle">Topics you've studied — stored locally on this device. Pick up where you left off.</p>
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">{{ 'learning.title' | t }}</h2>
+      <p class="page-subtitle">{{ 'learning.subtitle' | t }}</p>
+    </div>
+    @if (!showAddForm()) {
+      <button type="button" class="btn-add-topic" (click)="openAddForm()">
+        + {{ 'learning.addTopic' | t }}
+      </button>
+    }
+  </div>
+
+  @if (showAddForm()) {
+    <div class="add-form card fade-in">
+      <label class="field-label" for="new-topic">{{ 'common.topic' | t }}</label>
+      <input
+        id="new-topic"
+        class="input"
+        type="text"
+        [placeholder]="'learning.addTopicPlaceholder' | t"
+        [ngModel]="newTopic()"
+        (ngModelChange)="newTopic.set($event)"
+        (keydown.enter)="canAddTopic() && addAndExplain()"
+      />
+      <div class="add-form-actions">
+        <button type="button" class="btn-secondary" (click)="cancelAdd()">
+          {{ 'common.dismiss' | t }}
+        </button>
+        <button
+          type="button"
+          class="btn-primary btn-inline"
+          [disabled]="!canAddTopic()"
+          (click)="addAndExplain()"
+        >
+          {{ 'learning.startExplaining' | t }}
+        </button>
+      </div>
+    </div>
+  }
 
   @if (topics().length === 0) {
     <div class="empty card">
-      <p>No topics yet. Complete a TeachBack session or Long Test to save progress here.</p>
-      <a routerLink="/" class="btn-primary link-btn">Start TeachBack</a>
+      <p>{{ 'learning.empty' | t }}</p>
     </div>
   } @else {
     <ul class="topic-list">
@@ -14,12 +50,18 @@
           <div class="topic-main" (click)="continueTopic(item.topic)" role="button" tabindex="0">
             <div class="topic-header">
               <h3>{{ item.topic }}</h3>
-              <span class="last-score">{{ item.lastScore }}/100</span>
+              @if (hasScore(item)) {
+                <span class="last-score">{{ item.lastScore }}/100</span>
+              } @else {
+                <span class="last-score pending">{{ 'learning.notScoredYet' | t }}</span>
+              }
             </div>
-            <p class="topic-meta">Last studied {{ formatDate(item.updatedAt) }}</p>
+            <p class="topic-meta">
+              {{ 'learning.lastStudied' | t: { date: formatDate(item.updatedAt) } }}
+            </p>
             @if (item.scores.length) {
               <div class="score-history">
-                <span class="history-label">Score history:</span>
+                <span class="history-label">{{ 'learning.scoreHistory' | t }}</span>
                 @for (s of item.scores.slice(0, 5); track s.date) {
                   <span class="history-chip">
                     {{ s.type === 'long-test' && s.letterGrade ? s.letterGrade : s.score }}
@@ -29,9 +71,14 @@
             }
           </div>
           <button type="button" class="btn-continue" (click)="continueTopic(item.topic)">
-            Continue
+            {{ 'common.continue' | t }}
           </button>
-          <button type="button" class="btn-remove" (click)="removeTopic(item.id, $event)" aria-label="Remove">
+          <button
+            type="button"
+            class="btn-remove"
+            (click)="removeTopic(item.id, $event)"
+            [attr.aria-label]="'common.remove' | t"
+          >
             ×
           </button>
         </li>

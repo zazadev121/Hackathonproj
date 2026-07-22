@@ -8,17 +8,20 @@ import {
   LongTestScreen,
 } from '../../models/test.models';
 import { AiService } from '../../services/ai.service';
+import { I18nService } from '../../services/i18n.service';
 import { LearningStorageService } from '../../services/learning-storage.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-long-test',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   templateUrl: './long-test.html',
   styleUrl: './long-test.css',
 })
 export class LongTest {
   private readonly ai = inject(AiService);
   private readonly storage = inject(LearningStorageService);
+  private readonly i18n = inject(I18nService);
 
   readonly screen = signal<LongTestScreen>('topic');
   readonly topic = signal('');
@@ -56,7 +59,9 @@ export class LongTest {
       this.answers.set(new Map());
       this.screen.set('questions');
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'Failed to generate test.');
+      this.error.set(
+        err instanceof Error ? err.message : this.i18n.t('longTest.errorGenerate')
+      );
     } finally {
       this.loading.set(false);
     }
@@ -76,7 +81,7 @@ export class LongTest {
       this.storage.saveLongTestScore(this.topic().trim(), graded.score, graded.letter_grade);
       this.screen.set('result');
     } catch (err) {
-      this.error.set(err instanceof Error ? err.message : 'Failed to grade test.');
+      this.error.set(err instanceof Error ? err.message : this.i18n.t('longTest.errorGrade'));
     } finally {
       this.loading.set(false);
     }
