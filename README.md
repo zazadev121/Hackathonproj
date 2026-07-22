@@ -28,6 +28,8 @@ Copy-Item src/environments/environment.example.ts src/environments/environment.t
 
 Open `src/environments/environment.ts` and replace `YOUR_GROQ_API_KEY` with your key from [console.groq.com](https://console.groq.com/).
 
+Alternatively, set `GROQ_API_KEY` in your shell — `npm run build` auto-generates `environment.ts` via `scripts/generate-env.mjs`.
+
 ### Run the app
 
 ```bash
@@ -64,6 +66,18 @@ Open `http://localhost:4200/`. You need the [Phantom](https://phantom.app/) brow
 - Angular 20 (standalone components, signals)
 - Groq API (`openai/gpt-oss-120b`)
 - Solana devnet (SPL Memo transactions via Phantom)
+
+## Deploy on Vercel
+
+1. Import [github.com/zazadev121/Hackathonproj](https://github.com/zazadev121/Hackathonproj) on [vercel.com](https://vercel.com)
+2. Framework preset: **Angular** (or Other — `vercel.json` handles output)
+3. Root directory: `./` (repo root)
+4. Add environment variable:
+   - **Name:** `GROQ_API_KEY`
+   - **Value:** your Groq API key
+5. Deploy
+
+The build runs `prebuild` → generates `environment.ts` from `GROQ_API_KEY`, then `ng build`. Output is served from `dist/hackathon/browser` with SPA routing.
 
 ## Note on API keys
 
