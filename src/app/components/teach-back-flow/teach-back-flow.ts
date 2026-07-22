@@ -13,9 +13,9 @@ import { SolanaError, SolanaService } from '../../services/solana.service';
 import { ScoreDisplay } from '../score-display/score-display';
 
 const EXAMPLE_TOPICS = [
-  'CSS Flexbox',
-  'Derivatives in calculus',
-  'Past perfect tense in English',
+  'English verb tenses',
+  'Quadratic equations',
+  'World War II causes',
 ];
 
 @Component({

@@ -70,8 +70,8 @@
 }
 
 .option.selected {
-  border-color: var(--cyan);
-  background: rgba(0, 229, 255, 0.08);
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .option-letter {
@@ -104,7 +104,7 @@
 
 .grade-a {
   border-color: var(--green);
-  background: rgba(67, 181, 129, 0.1);
+  background: rgba(22, 163, 74, 0.08);
 }
 .grade-a .grade-letter {
   color: var(--green);

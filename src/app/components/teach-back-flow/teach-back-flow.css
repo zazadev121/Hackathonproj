@@ -76,7 +76,8 @@
 }
 
 .feedback-section.correct {
-  border-color: rgba(67, 181, 129, 0.3);
+  border-color: rgba(22, 163, 74, 0.25);
+  background: rgba(22, 163, 74, 0.04);
 }
 
 .feedback-section.correct h3,
@@ -85,7 +86,8 @@
 }
 
 .feedback-section.wrong {
-  border-color: rgba(240, 71, 71, 0.3);
+  border-color: rgba(220, 38, 38, 0.2);
+  background: rgba(220, 38, 38, 0.04);
 }
 
 .feedback-section.wrong h3,
@@ -94,7 +96,8 @@
 }
 
 .feedback-section.missed {
-  border-color: rgba(250, 166, 26, 0.3);
+  border-color: rgba(217, 119, 6, 0.25);
+  background: rgba(217, 119, 6, 0.04);
 }
 
 .feedback-section.missed h3,
@@ -159,15 +162,14 @@
 }
 
 .solana-section {
-  border-color: var(--border) !important;
-  background: var(--surface-elevated) !important;
+  border-color: rgba(99, 102, 241, 0.25) !important;
+  background: rgba(99, 102, 241, 0.04) !important;
   margin: 1.5rem 0;
 }
 
 .solana-title {
   color: var(--wallet) !important;
   margin: 0 0 0.75rem;
-  font-family: 'Cormorant Garamond', Georgia, serif;
 }
 
 .solana-desc,
@@ -203,7 +205,7 @@
   padding: 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  background: var(--bg-warm);
+  background: var(--surface-elevated);
 }
 
 .wallet-setup-compact {
@@ -212,10 +214,9 @@
 
 .setup-heading {
   margin: 0 0 0.75rem;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--accent);
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  color: var(--wallet);
 }
 
 .setup-steps {
@@ -273,7 +274,7 @@
 .below-mastery {
   margin: 1.5rem 0;
   border-color: var(--border) !important;
-  background: var(--bg-warm) !important;
+  background: var(--surface-elevated) !important;
 }
 
 .full-explanation {
