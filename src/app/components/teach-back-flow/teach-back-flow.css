@@ -205,6 +205,14 @@
   margin-top: 0.5rem;
 }
 
+.mastery-link-btn {
+  display: flex;
+  width: 100%;
+  margin-top: 1rem;
+  text-decoration: none;
+  text-align: center;
+}
+
 .phantom-note {
   font-size: 0.75rem;
   color: var(--text-muted);

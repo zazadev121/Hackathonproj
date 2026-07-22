@@ -1,0 +1,50 @@
+<section class="page fade-in">
+  <h2 class="page-title">{{ 'mastery.title' | t }}</h2>
+  <p class="page-subtitle">{{ 'mastery.subtitle' | t }}</p>
+
+  @if (credentials().length === 0) {
+    <div class="empty card">
+      <p>{{ 'mastery.empty' | t }}</p>
+      <a routerLink="/" class="btn-primary link-btn">{{ 'mastery.startTeachBack' | t }}</a>
+    </div>
+  } @else {
+    <ul class="credential-list">
+      @for (item of credentials(); track item.id) {
+        <li class="credential-card card">
+          <div class="credential-badge" [class.demo]="item.isDemo">
+            @if (item.isDemo) {
+              {{ 'mastery.demoBadge' | t }}
+            } @else {
+              {{ 'mastery.onChainBadge' | t }}
+            }
+          </div>
+          <p class="credential-statement">
+            {{ 'mastery.goodKnowledge' | t: { topic: item.topic } }}
+          </p>
+          <div class="credential-meta">
+            <span class="credential-score">{{ item.score }}/100</span>
+            <span class="credential-date">{{ 'mastery.minted' | t: { date: formatDate(item.mintedAt) } }}</span>
+          </div>
+          @if (!item.isDemo && explorerUrl(item)) {
+            <a
+              class="explorer-link"
+              [href]="explorerUrl(item)"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ 'mastery.viewOnChain' | t }}
+            </a>
+          }
+          <button
+            type="button"
+            class="btn-remove"
+            (click)="remove(item.id, $event)"
+            [attr.aria-label]="'common.remove' | t"
+          >
+            ×
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</section>

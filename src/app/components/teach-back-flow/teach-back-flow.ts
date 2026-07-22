@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   FinalResponse,
   FlowScreen,
@@ -10,6 +10,7 @@ import {
 import { AiService } from '../../services/ai.service';
 import { I18nService } from '../../services/i18n.service';
 import { LearningStorageService } from '../../services/learning-storage.service';
+import { MasteryStorageService } from '../../services/mastery-storage.service';
 import { SolanaError, SolanaService } from '../../services/solana.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { ScoreDisplay } from '../score-display/score-display';
@@ -19,7 +20,7 @@ const EXAMPLE_KEYS = ['examples.englishTenses', 'examples.quadratic', 'examples.
 
 @Component({
   selector: 'app-teach-back-flow',
-  imports: [FormsModule, ScoreDisplay, TranslatePipe],
+  imports: [FormsModule, ScoreDisplay, TranslatePipe, RouterLink],
   templateUrl: './teach-back-flow.html',
   styleUrl: './teach-back-flow.css',
 })
@@ -27,6 +28,7 @@ export class TeachBackFlow implements OnInit {
   private readonly ai = inject(AiService);
   private readonly route = inject(ActivatedRoute);
   private readonly learningStorage = inject(LearningStorageService);
+  private readonly masteryStorage = inject(MasteryStorageService);
   readonly solana = inject(SolanaService);
   readonly i18n = inject(I18nService);
 
@@ -130,6 +132,7 @@ export class TeachBackFlow implements OnInit {
       }
       const sig = await this.solana.mintProofOfMastery(this.topic(), result.final_score);
       this.mintSignature.set(sig);
+      this.saveMasteryCredential(sig);
     } catch (err) {
       this.mintError.set(
         err instanceof SolanaError ? err.message : this.i18n.t('teachBack.errorMint')
@@ -153,7 +156,20 @@ export class TeachBackFlow implements OnInit {
     const result = this.finalResult();
     if (!result || result.final_score < MASTERY_SCORE_THRESHOLD) return;
     this.mintError.set(null);
-    this.mintSignature.set(this.solana.createDemoMintSignature(this.topic(), result.final_score));
+    const sig = this.solana.createDemoMintSignature(this.topic(), result.final_score);
+    this.mintSignature.set(sig);
+    this.saveMasteryCredential(sig);
+  }
+
+  private saveMasteryCredential(signature: string): void {
+    const result = this.finalResult();
+    if (!result) return;
+    this.masteryStorage.saveCredential(
+      this.topic().trim(),
+      result.final_score,
+      signature,
+      this.solana.isDemoSignature(signature)
+    );
   }
 
   resetFlow(): void {

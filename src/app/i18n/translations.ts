@@ -6,6 +6,7 @@ export const TRANSLATIONS = {
   en: {
     'nav.teachBack': 'TeachBack',
     'nav.nowLearning': 'Now Learning',
+    'nav.mastery': 'My Mastery',
     'nav.longTest': 'Long Test',
     'tagline': 'Study smarter — test yourself before the real exam.',
 
@@ -106,6 +107,17 @@ export const TRANSLATIONS = {
     'learning.lastStudied': 'Last studied {{date}}',
     'learning.scoreHistory': 'Score history:',
 
+    'mastery.title': 'My Mastery',
+    'mastery.subtitle': 'Topics you\'ve proven you know — saved when you mint Proof of Mastery.',
+    'mastery.empty': 'No mastery credentials yet. Score 80+ on TeachBack and mint to earn one.',
+    'mastery.startTeachBack': 'Start TeachBack',
+    'mastery.goodKnowledge': 'You have good knowledge of {{topic}}',
+    'mastery.minted': 'Earned {{date}}',
+    'mastery.onChainBadge': 'On-chain',
+    'mastery.demoBadge': 'Demo',
+    'mastery.viewOnChain': 'View on Solana Explorer →',
+    'mastery.viewCredentials': 'View in My Mastery',
+
     'longTest.title': 'Long Test',
     'longTest.subtitle':
       'Enter a topic — AI generates 10–15 questions and grades you F through A+.',
@@ -128,6 +140,7 @@ export const TRANSLATIONS = {
   ka: {
     'nav.teachBack': 'TeachBack',
     'nav.nowLearning': 'ვსწავლობ',
+    'nav.mastery': 'ჩემი ცოდნა',
     'nav.longTest': 'გრძელი ტესტი',
     'tagline': 'ისწავლე ჭკვიანურად — გამოსცადე თავი რეალურ გამოცდამდე.',
 
@@ -227,6 +240,17 @@ export const TRANSLATIONS = {
     'learning.startTeachBack': 'TeachBack-ის დაწყება',
     'learning.lastStudied': 'ბოლოს სწავლობდი {{date}}',
     'learning.scoreHistory': 'ქულების ისტორია:',
+
+    'mastery.title': 'ჩემი ცოდნა',
+    'mastery.subtitle': 'თემები, რომლებიც დაამტკიცე — ინახება Proof of Mastery mint-ის შემდეგ.',
+    'mastery.empty': 'ჯერ არაფერი არ გაქვს. TeachBack-ზე 80+ ქულა და mint — და დაიმატებ აქ.',
+    'mastery.startTeachBack': 'TeachBack-ის დაწყება',
+    'mastery.goodKnowledge': 'კარგად იცნი {{topic}}',
+    'mastery.minted': 'მიღებულია {{date}}',
+    'mastery.onChainBadge': 'On-chain',
+    'mastery.demoBadge': 'Demo',
+    'mastery.viewOnChain': 'ნახვა Solana Explorer-ში →',
+    'mastery.viewCredentials': 'ნახვა „ჩემი ცოდნა"-ში',
 
     'longTest.title': 'გრძელი ტესტი',
     'longTest.subtitle':
