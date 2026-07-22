@@ -1,0 +1,9 @@
+<div class="score-display">
+  <div class="score-header">
+    <span class="score-label">{{ label() }}</span>
+    <span class="score-value">{{ displayScore() }}<span class="score-unit">/100</span></span>
+  </div>
+  <div class="score-bar-track">
+    <div class="score-bar-fill" [style.width.%]="barWidth()"></div>
+  </div>
+</div>

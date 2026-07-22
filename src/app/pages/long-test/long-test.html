@@ -1,0 +1,110 @@
+<div class="page fade-in">
+  @if (error()) {
+    <div class="error-banner">
+      <p>{{ error() }}</p>
+      <button type="button" class="btn-secondary" (click)="error.set(null)">Dismiss</button>
+    </div>
+  }
+
+  @switch (screen()) {
+    @case ('topic') {
+      <section>
+        <h2 class="page-title">Long Test</h2>
+        <p class="page-subtitle">Enter a topic — AI generates 10–15 questions and grades you F through A+.</p>
+
+        <label class="field-label" for="test-topic">Topic</label>
+        <input
+          id="test-topic"
+          class="input"
+          type="text"
+          placeholder="e.g. World War II, JavaScript arrays, Organic chemistry…"
+          [ngModel]="topic()"
+          (ngModelChange)="topic.set($event)"
+          [disabled]="loading()"
+        />
+
+        <button type="button" class="btn-primary" [disabled]="!canStart()" (click)="startTest()">
+          @if (loading()) {
+            <span class="spinner"></span> Generating questions…
+          } @else {
+            Start test
+          }
+        </button>
+      </section>
+    }
+
+    @case ('questions') {
+      <section>
+        <h2 class="page-title">{{ topic() }}</h2>
+        <p class="page-subtitle">{{ questions().length }} questions — answer all to submit</p>
+
+        @for (q of questions(); track q.id) {
+          <div class="question-card card">
+            <p class="q-number">Question {{ q.id }}</p>
+            <p class="q-text">{{ q.question }}</p>
+            <div class="options">
+              @for (opt of q.options; track opt; let i = $index) {
+                <button
+                  type="button"
+                  class="option"
+                  [class.selected]="isSelected(q.id, i)"
+                  (click)="selectAnswer(q.id, i)"
+                >
+                  <span class="option-letter">{{ ['A', 'B', 'C', 'D'][i] }}</span>
+                  {{ opt }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="!allAnswered() || loading()"
+          (click)="submitTest()"
+        >
+          @if (loading()) {
+            <span class="spinner"></span> Grading…
+          } @else {
+            Submit test
+          }
+        </button>
+      </section>
+    }
+
+    @case ('result') {
+      @if (result(); as r) {
+        <section class="result-section">
+          <h2 class="page-title">Results — {{ topic() }}</h2>
+
+          <div class="grade-display" [class]="gradeClass(r.letter_grade)">
+            <span class="grade-letter">{{ r.letter_grade }}</span>
+            <span class="grade-score">{{ r.score }}/100</span>
+          </div>
+
+          <p class="grade-detail">{{ r.correct_count }} / {{ r.total }} correct</p>
+          <p class="summary">{{ r.summary }}</p>
+
+          @if (r.weak_areas.length) {
+            <div class="weak-areas card">
+              <h3>Areas to review</h3>
+              <ul>
+                @for (area of r.weak_areas; track area) {
+                  <li>{{ area }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          <p class="saved-note">Saved to Now Learning</p>
+
+          <div class="result-actions">
+            <button type="button" class="btn-primary" (click)="reset()">Try another topic</button>
+            <a routerLink="/learning" class="btn-secondary link-btn">View Now Learning</a>
+          </div>
+        </section>
+      }
+    }
+  }
+</div>

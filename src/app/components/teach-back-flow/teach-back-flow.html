@@ -1,0 +1,307 @@
+<div class="flow">
+  @if (error()) {
+    <div class="error-banner fade-in">
+      <p>{{ error() }}</p>
+      <button type="button" class="btn-secondary" (click)="retryLastAction()">Retry</button>
+    </div>
+  }
+
+  @switch (screen()) {
+    @case ('topic') {
+      <section class="screen fade-in">
+        <h2 class="screen-title">What do you want to test?</h2>
+        <p class="screen-subtitle">Explain a topic like you're teaching a beginner — the AI grades your understanding.</p>
+
+        <label class="field-label" for="topic">Topic</label>
+        <input
+          id="topic"
+          class="input"
+          type="text"
+          placeholder="e.g. CSS Flexbox, Photosynthesis, SQL joins…"
+          [ngModel]="topic()"
+          (ngModelChange)="topic.set($event)"
+          [disabled]="loading()"
+        />
+
+        <div class="chips">
+          @for (example of exampleTopics; track example) {
+            <button
+              type="button"
+              class="chip"
+              (click)="selectTopic(example)"
+              [disabled]="loading()"
+            >
+              {{ example }}
+            </button>
+          }
+        </div>
+
+        <label class="field-label" for="explanation">Your explanation</label>
+        <textarea
+          id="explanation"
+          class="textarea"
+          rows="8"
+          placeholder="Explain it like you're teaching a beginner…"
+          [ngModel]="explanation()"
+          (ngModelChange)="explanation.set($event)"
+          [disabled]="loading()"
+        ></textarea>
+
+        <button
+          type="button"
+          class="btn-primary"
+          [disabled]="!canSubmitTopic()"
+          (click)="submitExplanation()"
+        >
+          @if (loading()) {
+            <span class="spinner"></span>
+            Analyzing your explanation…
+          } @else {
+            Submit
+          }
+        </button>
+      </section>
+    }
+
+    @case ('grading') {
+      @if (grading(); as g) {
+        <section class="screen fade-in">
+          <h2 class="screen-title">Your results for "{{ topic() }}"</h2>
+
+          <app-score-display [score]="g.score" />
+
+          @if (g.correct_points.length) {
+            <div class="feedback-section correct">
+              <h3>What you got right</h3>
+              <ul>
+                @for (point of g.correct_points; track point) {
+                  <li><span class="icon">✓</span>{{ point }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (g.wrong_points.length) {
+            <div class="feedback-section wrong">
+              <h3>What you got wrong</h3>
+              <ul>
+                @for (item of g.wrong_points; track item.claim) {
+                  <li>
+                    <span class="icon">✕</span>
+                    <span><strong>{{ item.claim }}</strong> — {{ item.correction }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+
+          @if (g.missed_points.length) {
+            <div class="feedback-section missed">
+              <h3>What you missed</h3>
+              <ul>
+                @for (point of g.missed_points; track point) {
+                  <li><span class="icon">!</span>{{ point }}</li>
+                }
+              </ul>
+            </div>
+          }
+
+          <div class="follow-up card">
+            <h3>Follow-up question</h3>
+            <p class="follow-up-question">{{ g.follow_up_question }}</p>
+            <textarea
+              class="textarea"
+              rows="4"
+              placeholder="Your answer…"
+              [ngModel]="followUpAnswer()"
+              (ngModelChange)="followUpAnswer.set($event)"
+              [disabled]="loading()"
+            ></textarea>
+            <button
+              type="button"
+              class="btn-primary"
+              [disabled]="!canSubmitFollowUp()"
+              (click)="submitFollowUp()"
+            >
+              @if (loading()) {
+                <span class="spinner"></span>
+                Evaluating…
+              } @else {
+                Submit answer
+              }
+            </button>
+          </div>
+        </section>
+      }
+    }
+
+    @case ('final') {
+      @if (finalResult(); as f) {
+        <section class="screen fade-in">
+          <h2 class="screen-title">Final round — "{{ topic() }}"</h2>
+
+          <div
+            class="verdict"
+            [class.verdict-yes]="f.follow_up_correct"
+            [class.verdict-no]="!f.follow_up_correct"
+          >
+            {{ f.follow_up_correct ? 'Follow-up: Correct' : 'Follow-up: Incorrect' }}
+          </div>
+          <p class="feedback-text">{{ f.follow_up_feedback }}</p>
+
+          <app-score-display [score]="f.final_score" label="Final Score" />
+
+          <div class="feedback-section neutral">
+            <h3>Complete explanation</h3>
+            <ul>
+              @for (bullet of f.complete_explanation_bullets; track bullet) {
+                <li>{{ bullet }}</li>
+              }
+            </ul>
+          </div>
+
+          @if (f.final_score >= 80) {
+            <div class="solana-section card">
+              <h3 class="solana-title">Proof of Mastery</h3>
+              @if (mintSignature()) {
+                <p class="solana-success">
+                  Your understanding of <strong>{{ topic() }}</strong> is now verifiably recorded on
+                  Solana — a permanent, portable credential you own, not just a score in our database.
+                </p>
+                <a
+                  class="explorer-link"
+                  [href]="solana.getExplorerUrl(mintSignature()!)"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  View on Solana Explorer →
+                </a>
+              } @else {
+                <p class="solana-desc">
+                  Score 80+ unlocked! Mint your on-chain credential on Solana devnet.
+                </p>
+                <p class="phantom-note">
+                  A Phantom console warning on page load is normal and does not affect minting.
+                </p>
+                @if (mintError()) {
+                  <p class="solana-error">{{ mintError() }}</p>
+                }
+
+                @if (!solana.isPhantomInstalled()) {
+                  <div class="wallet-setup">
+                    <p class="setup-heading">Wallet setup (one-time, ~2 min)</p>
+                    <ol class="setup-steps">
+                      <li>
+                        Install
+                        <a href="https://phantom.app/download" target="_blank" rel="noopener">Phantom</a>
+                        for Chrome, Edge, or Brave
+                      </li>
+                      <li>Create a new wallet in Phantom (save your recovery phrase)</li>
+                      <li>
+                        Switch Phantom to <strong>Devnet</strong>: open Phantom → click the network
+                        name at the top (e.g. "Mainnet") → select <strong>Devnet</strong>
+                      </li>
+                      <li>Copy your wallet address from Phantom</li>
+                      <li>
+                        Get free SOL at
+                        <a href="https://faucet.solana.com/" target="_blank" rel="noopener">faucet.solana.com</a>
+                        (paste address, choose Devnet, request airdrop)
+                      </li>
+                      <li>Refresh this page, then click Connect Wallet below</li>
+                    </ol>
+                  </div>
+                } @else if (!solana.walletAddress()) {
+                  <div class="wallet-setup wallet-setup-compact">
+                    <p class="setup-tip">
+                      Make sure Phantom is on <strong>Devnet</strong> (network selector at top of
+                      Phantom). Mainnet wallets won't work for this demo.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    class="btn-solana"
+                    [disabled]="solana.isConnecting()"
+                    (click)="connectWallet()"
+                  >
+                    @if (solana.isConnecting()) {
+                      Connecting…
+                    } @else {
+                      Connect Wallet
+                    }
+                  </button>
+                } @else {
+                  <p class="wallet-connected">
+                    Connected: {{ solana.walletAddress()!.slice(0, 4) }}…{{
+                      solana.walletAddress()!.slice(-4)
+                    }}
+                    @if (solana.devnetBalance() !== null) {
+                      · {{ solana.devnetBalance()!.toFixed(4) }} SOL (devnet)
+                    }
+                  </p>
+                  @if (solana.devnetBalance() !== null && !solana.hasEnoughDevnetSol()) {
+                    <div class="wallet-setup wallet-setup-compact">
+                      <p class="setup-tip setup-warning">
+                        Balance too low to mint. Get devnet SOL at
+                        <a href="https://faucet.solana.com/" target="_blank" rel="noopener">faucet.solana.com</a>,
+                        then refresh this page.
+                      </p>
+                    </div>
+                  }
+                  <button
+                    type="button"
+                    class="btn-solana"
+                    [disabled]="!canMint() || solana.isMinting()"
+                    (click)="mintProof()"
+                  >
+                    @if (solana.isMinting()) {
+                      Minting…
+                    } @else {
+                      Mint Proof of Mastery
+                    }
+                  </button>
+                }
+              }
+            </div>
+          } @else {
+            <div class="below-mastery card">
+              <p class="mint-gate">
+                Score 80+ to mint your on-chain proof of mastery. Keep studying — here's everything
+                you need to master this topic:
+              </p>
+
+              @if (f.full_explanation) {
+                <div class="full-explanation">
+                  <h3>Full topic explanation</h3>
+                  @for (paragraph of f.full_explanation.split('\n\n'); track paragraph) {
+                    @if (paragraph.trim()) {
+                      <p>{{ paragraph.trim() }}</p>
+                    }
+                  }
+                </div>
+              }
+
+              @if (f.resource_links.length) {
+                <div class="resource-links">
+                  <h3>Learn more</h3>
+                  <ul>
+                    @for (link of f.resource_links; track link.url) {
+                      <li>
+                        <a [href]="link.url" target="_blank" rel="noopener noreferrer">
+                          {{ link.title }} →
+                        </a>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              }
+            </div>
+          }
+
+          <button type="button" class="btn-secondary try-again" (click)="resetFlow()">
+            Try another topic
+          </button>
+        </section>
+      }
+    }
+  }
+</div>
