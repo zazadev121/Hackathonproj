@@ -24,8 +24,20 @@ export class SolanaService {
   readonly isConnecting = signal(false);
   readonly isMinting = signal(false);
   readonly isCheckingBalance = signal(false);
+  readonly isAirdropping = signal(false);
 
   private connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+
+  isDemoSignature(signature: string): boolean {
+    return signature.startsWith('DEMO-');
+  }
+
+  createDemoMintSignature(topic: string, finalScore: number): string {
+    const token = btoa(JSON.stringify({ topic, finalScore, t: Date.now() }))
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .slice(0, 20);
+    return `DEMO-${token}-${Date.now().toString(36)}`;
+  }
 
   isPhantomInstalled(): boolean {
     return !!window.solana?.isPhantom;
@@ -78,6 +90,31 @@ export class SolanaService {
   hasEnoughDevnetSol(): boolean {
     const balance = this.devnetBalance();
     return balance !== null && balance >= 0.001;
+  }
+
+  async requestDevnetAirdrop(): Promise<number> {
+    const provider = window.solana;
+    if (!provider?.publicKey) {
+      throw new SolanaError('Wallet not connected. Connect Phantom first.');
+    }
+
+    this.isAirdropping.set(true);
+    try {
+      const sig = await this.connection.requestAirdrop(provider.publicKey, LAMPORTS_PER_SOL);
+      await this.connection.confirmTransaction(sig, 'confirmed');
+      const balance = await this.refreshBalance();
+      if (balance === null || balance < 0.001) {
+        throw new SolanaError('Airdrop did not arrive yet. Try demo mint instead.');
+      }
+      return balance;
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new SolanaError(
+        msg.includes('Airdrop') ? msg : `Devnet airdrop failed (faucet may be limited). Use demo mint instead.`
+      );
+    } finally {
+      this.isAirdropping.set(false);
+    }
   }
 
   async mintProofOfMastery(topic: string, finalScore: number): Promise<string> {
@@ -151,6 +188,7 @@ export class SolanaService {
   }
 
   getExplorerUrl(signature: string): string {
+    if (this.isDemoSignature(signature)) return '';
     return `https://explorer.solana.com/tx/${signature}?cluster=devnet`;
   }
 }

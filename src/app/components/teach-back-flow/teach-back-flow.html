@@ -179,17 +179,24 @@
             <div class="solana-section card">
               <h3 class="solana-title">{{ 'teachBack.proofOfMastery' | t }}</h3>
               @if (mintSignature()) {
-                <p class="solana-success">
-                  {{ 'teachBack.solanaSuccess' | t: { topic: topic() } }}
-                </p>
-                <a
-                  class="explorer-link"
-                  [href]="solana.getExplorerUrl(mintSignature()!)"
-                  target="_blank"
-                  rel="noopener"
-                >
-                  {{ 'teachBack.viewExplorer' | t }}
-                </a>
+                @if (isDemoMint()) {
+                  <p class="solana-success demo-success">
+                    {{ 'teachBack.demoMintSuccess' | t: { topic: topic() } }}
+                  </p>
+                  <p class="demo-note">{{ 'teachBack.demoMintExplain' | t }}</p>
+                } @else {
+                  <p class="solana-success">
+                    {{ 'teachBack.solanaSuccess' | t: { topic: topic() } }}
+                  </p>
+                  <a
+                    class="explorer-link"
+                    [href]="solana.getExplorerUrl(mintSignature()!)"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {{ 'teachBack.viewExplorer' | t }}
+                  </a>
+                }
               } @else {
                 <p class="solana-desc">{{ 'teachBack.scoreUnlocked' | t }}</p>
                 <p class="phantom-note">{{ 'teachBack.phantomNote' | t }}</p>
@@ -249,8 +256,19 @@
                     <div class="wallet-setup wallet-setup-compact">
                       <p class="setup-tip setup-warning">
                         {{ 'teachBack.lowBalance' | t }}
-                        <a href="https://faucet.solana.com/" target="_blank" rel="noopener">faucet.solana.com</a>
                       </p>
+                      <button
+                        type="button"
+                        class="btn-secondary airdrop-btn"
+                        [disabled]="solana.isAirdropping()"
+                        (click)="requestAirdrop()"
+                      >
+                        @if (solana.isAirdropping()) {
+                          {{ 'teachBack.airdropping' | t }}
+                        } @else {
+                          {{ 'teachBack.requestAirdrop' | t }}
+                        }
+                      </button>
                     </div>
                   }
                   <button
@@ -266,6 +284,13 @@
                     }
                   </button>
                 }
+
+                <div class="demo-mint-block">
+                  <p class="demo-hint">{{ 'teachBack.demoMintHint' | t }}</p>
+                  <button type="button" class="btn-secondary demo-mint-btn" (click)="demoMintProof()">
+                    {{ 'teachBack.demoMint' | t }}
+                  </button>
+                </div>
               }
             </div>
           } @else {

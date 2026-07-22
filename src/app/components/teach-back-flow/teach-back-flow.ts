@@ -70,6 +70,11 @@ export class TeachBackFlow implements OnInit {
     return `${addr.slice(0, 4)}…${addr.slice(-4)}`;
   });
 
+  readonly isDemoMint = computed(() => {
+    const sig = this.mintSignature();
+    return !!sig && this.solana.isDemoSignature(sig);
+  });
+
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
       const t = params['topic'];
@@ -130,6 +135,25 @@ export class TeachBackFlow implements OnInit {
         err instanceof SolanaError ? err.message : this.i18n.t('teachBack.errorMint')
       );
     }
+  }
+
+  async requestAirdrop(): Promise<void> {
+    this.mintError.set(null);
+    try {
+      if (!this.solana.walletAddress()) {
+        await this.connectWallet();
+      }
+      await this.solana.requestDevnetAirdrop();
+    } catch (err) {
+      this.mintError.set(err instanceof SolanaError ? err.message : this.i18n.t('teachBack.errorAirdrop'));
+    }
+  }
+
+  demoMintProof(): void {
+    const result = this.finalResult();
+    if (!result || result.final_score < MASTERY_SCORE_THRESHOLD) return;
+    this.mintError.set(null);
+    this.mintSignature.set(this.solana.createDemoMintSignature(this.topic(), result.final_score));
   }
 
   resetFlow(): void {

@@ -72,6 +72,15 @@ export const TRANSLATIONS = {
       'Balance too low to mint. Get devnet SOL at faucet.solana.com, then refresh this page.',
     'teachBack.minting': 'Minting…',
     'teachBack.mintProof': 'Mint Proof of Mastery',
+    'teachBack.requestAirdrop': 'Try free devnet SOL',
+    'teachBack.airdropping': 'Requesting SOL…',
+    'teachBack.errorAirdrop': 'Airdrop failed. Use demo mint below.',
+    'teachBack.demoMintHint': 'No devnet SOL? Use demo mint to show judges the full flow — no wallet needed.',
+    'teachBack.demoMint': 'Demo mint (presentation mode)',
+    'teachBack.demoMintSuccess':
+      'Proof of Mastery recorded for "{{topic}}"! (Demo — shows what on-chain mint looks like.)',
+    'teachBack.demoMintExplain':
+      'Real mint uses Solana devnet + Phantom when devnet SOL is available. Your score and topic are saved in Now Learning either way.',
     'teachBack.belowMastery':
       'Score 80+ to mint your on-chain proof of mastery. Keep studying — here\'s everything you need to master this topic:',
     'teachBack.fullExplanation': 'Full topic explanation',
@@ -185,6 +194,15 @@ export const TRANSLATIONS = {
       'ბალანსი არასაკმარისია. მიიღე devnet SOL faucet.solana.com-ზე და განაახლე გვერდი.',
     'teachBack.minting': 'Minting…',
     'teachBack.mintProof': 'Mint Proof of Mastery',
+    'teachBack.requestAirdrop': 'სცადე უფასო devnet SOL',
+    'teachBack.airdropping': 'SOL-ის მოთხოვნა…',
+    'teachBack.errorAirdrop': 'Airdrop ვერ მოხერხდა. გამოიყენე demo mint ქვემოთ.',
+    'teachBack.demoMintHint': 'devnet SOL არ გაქვს? Demo mint-ით სრული flow-ის ჩვენება — საფული არ სჭირდება.',
+    'teachBack.demoMint': 'Demo mint (პრეზentation)',
+    'teachBack.demoMintSuccess':
+      'Proof of Mastery ჩაწერილია „{{topic}}"! (Demo — აჩვენებს on-chain mint-ს.)',
+    'teachBack.demoMintExplain':
+      'რეალური mint იყენებს Solana devnet + Phantom-ს. ქულა და თემა Now Learning-ში მაინც ინახება.',
     'teachBack.belowMastery':
       '80+ ქულა საჭიროა on-chain სერთიფიკატისთვის. ისწავლე შემდეგ — აი ყველაფერი, რაც გჭირდება:',
     'teachBack.fullExplanation': 'სრული ახსნა თემაზე',
