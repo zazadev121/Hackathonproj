@@ -175,7 +175,7 @@
             </ul>
           </div>
 
-          @if (f.final_score >= 80) {
+          @if (f.final_score >= masteryThreshold) {
             <div class="solana-section card">
               <h3 class="solana-title">{{ 'teachBack.proofOfMastery' | t }}</h3>
               @if (mintSignature()) {

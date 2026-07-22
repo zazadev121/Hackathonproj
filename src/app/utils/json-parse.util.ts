@@ -1,3 +1,5 @@
+import { MASTERY_SCORE_THRESHOLD } from '../constants/mastery.constants';
+
 export class ParseError extends Error {
   constructor(message: string) {
     super(message);
@@ -73,12 +75,14 @@ export function validateFinalResponse(data: unknown): asserts data is import('..
   if (!Array.isArray(obj['resource_links'])) throw new ParseError('Missing resource_links.');
 
   const score = obj['final_score'] as number;
-  if (score < 80) {
+  if (score < MASTERY_SCORE_THRESHOLD) {
     if (!(obj['full_explanation'] as string).trim()) {
-      throw new ParseError('full_explanation required when score is below 80.');
+      throw new ParseError(`full_explanation required when score is below ${MASTERY_SCORE_THRESHOLD}.`);
     }
     const links = obj['resource_links'] as unknown[];
-    if (links.length < 2) throw new ParseError('At least 2 resource_links required when score is below 80.');
+    if (links.length < 2) {
+      throw new ParseError(`At least 2 resource_links required when score is below ${MASTERY_SCORE_THRESHOLD}.`);
+    }
     for (const link of links) {
       const l = link as Record<string, unknown>;
       if (typeof l['title'] !== 'string' || typeof l['url'] !== 'string') {

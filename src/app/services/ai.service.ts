@@ -14,11 +14,9 @@ import {
   validateLongTestGenerate,
   validateLongTestGrade,
 } from '../utils/json-parse.util';
+import { MASTERY_SCORE_THRESHOLD } from '../constants/mastery.constants';
 
-const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL = 'openai/gpt-oss-120b';
-
-const GRADE_SYSTEM_PROMPT = `You are a strict but fair teaching assistant. A user will give you a topic and their own explanation of it, written as if they were teaching a beginner. Your job is to evaluate their understanding, not to teach them yourself first.
+const GRADE_SYSTEM_PROMPT = `You are a supportive teaching assistant helping students prepare for exams (e.g. NAEC). A user will give you a topic and their own explanation of it, written as if they were teaching a beginner. Your job is to evaluate their understanding generously and encourage learning — not to gatekeep with harsh scores.
 
 Respond ONLY with a valid JSON object, no preamble, no markdown fences, matching exactly this structure:
 {
@@ -30,12 +28,17 @@ Respond ONLY with a valid JSON object, no preamble, no markdown fences, matching
 }
 
 Rules:
-- Be specific and accurate — don't be vague or overly harsh.
-- The follow_up_question must target the single biggest gap in their understanding.
-- Base the score on completeness and accuracy relative to a solid understanding of the topic.
+- Be encouraging and fair — this is exam prep, not a university oral exam.
+- Give partial credit generously: if they show the main idea, score at least 55-65 even with gaps.
+- Only use wrong_points for clear factual errors, not minor wording issues or missing nuance.
+- Keep missed_points to 1-3 truly important gaps — do not list every possible detail they skipped.
+- Reserve scores below 50 for explanations that are mostly wrong, empty, or off-topic.
+- Scores of 60-75 mean "decent grasp with some gaps"; 76+ means solid understanding.
+- The follow_up_question must target their biggest remaining gap, but keep it approachable.
+- Base the score on whether a student would pass a school exam on this topic, not expert-level completeness.
 - Never include text outside the JSON object.`;
 
-const FOLLOW_UP_SYSTEM_PROMPT = `You previously identified gaps in a user's understanding of a topic and asked them a follow-up question. Now evaluate their answer.
+const FOLLOW_UP_SYSTEM_PROMPT = `You previously identified gaps in a student's understanding of a topic and asked them a follow-up question. Now evaluate their answer generously — they are studying for school exams.
 
 Respond ONLY with a valid JSON object matching exactly this structure:
 {
@@ -47,13 +50,21 @@ Respond ONLY with a valid JSON object matching exactly this structure:
   "resource_links": [{"title": "Resource name", "url": "https://..."}, ...]
 }
 
+Scoring rules:
+- Be lenient on final_score: partial credit on the follow-up still earns a fair bump from the prior score.
+- If they answered the follow-up mostly correctly, final_score should usually reflect a fair bump from the prior score.
+- Do not punish small mistakes harshly — reward overall understanding.
+
 Rules for full_explanation and resource_links:
-- If final_score is BELOW 80: full_explanation MUST be a thorough, beginner-friendly explanation of the entire topic (4-6 short paragraphs separated by \\n\\n). Teach everything they missed — this is their main learning moment.
-- If final_score is 80 or above: set full_explanation to an empty string "".
-- If final_score is BELOW 80: resource_links MUST include 2-4 real, working URLs to trusted public resources tailored to the topic. Examples: W3Schools or MDN for web/CSS topics, Khan Academy for math/science, Wikipedia for history/general topics, official docs when they exist. Use real URLs only — no placeholders.
-- If final_score is 80 or above: resource_links may be an empty array [].
+- If final_score is BELOW ${MASTERY_SCORE_THRESHOLD}: full_explanation MUST be a thorough, beginner-friendly explanation of the entire topic (4-6 short paragraphs separated by \\n\\n). Teach everything they missed — this is their main learning moment.
+- If final_score is ${MASTERY_SCORE_THRESHOLD} or above: set full_explanation to an empty string "".
+- If final_score is BELOW ${MASTERY_SCORE_THRESHOLD}: resource_links MUST include 2-4 real, working URLs to trusted public resources tailored to the topic. Examples: W3Schools or MDN for web/CSS topics, Khan Academy for math/science, Wikipedia for history/general topics, official docs when they exist. Use real URLs only — no placeholders.
+- If final_score is ${MASTERY_SCORE_THRESHOLD} or above: resource_links may be an empty array [].
 
 Never include text outside the JSON object.`;
+
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const MODEL = 'openai/gpt-oss-120b';
 
 const LONG_TEST_GENERATE_PROMPT = `You create multiple-choice knowledge tests. Given a topic, generate between 10 and 15 challenging but fair multiple-choice questions for a student.
 
@@ -176,7 +187,7 @@ export class AiService {
       body: JSON.stringify({
         model: MODEL,
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
-        temperature: 0.3,
+        temperature: 0.5,
         response_format: { type: 'json_object' },
       }),
     });

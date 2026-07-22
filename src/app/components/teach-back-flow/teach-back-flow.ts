@@ -13,6 +13,7 @@ import { LearningStorageService } from '../../services/learning-storage.service'
 import { SolanaError, SolanaService } from '../../services/solana.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { ScoreDisplay } from '../score-display/score-display';
+import { MASTERY_SCORE_THRESHOLD } from '../../constants/mastery.constants';
 
 const EXAMPLE_KEYS = ['examples.englishTenses', 'examples.quadratic', 'examples.wwii'] as const;
 
@@ -30,6 +31,7 @@ export class TeachBackFlow implements OnInit {
   readonly i18n = inject(I18nService);
 
   readonly exampleKeys = EXAMPLE_KEYS;
+  readonly masteryThreshold = MASTERY_SCORE_THRESHOLD;
 
   readonly screen = signal<FlowScreen>('topic');
   readonly topic = signal('');
@@ -57,7 +59,7 @@ export class TeachBackFlow implements OnInit {
 
   readonly canMint = computed(
     () =>
-      (this.finalResult()?.final_score ?? 0) >= 80 &&
+      (this.finalResult()?.final_score ?? 0) >= MASTERY_SCORE_THRESHOLD &&
       !this.solana.isMinting() &&
       !this.mintSignature()
   );
@@ -114,7 +116,7 @@ export class TeachBackFlow implements OnInit {
 
   async mintProof(): Promise<void> {
     const result = this.finalResult();
-    if (!result || result.final_score < 80) return;
+    if (!result || result.final_score < MASTERY_SCORE_THRESHOLD) return;
 
     this.mintError.set(null);
     try {
