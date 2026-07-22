@@ -4,15 +4,37 @@ TeachBack is an AI-powered study tool with a teach-back twist: instead of the AI
 
 ## Quick start
 
+### Clone the repo
+
+```bash
+git clone https://github.com/zazadev121/Hackathonproj.git
+cd Hackathonproj
+npm install
+```
+
+### Set up your Groq API key (required)
+
+`src/environments/environment.ts` is **gitignored** and is not included in the repo — you must create it locally:
+
 ```bash
 cp src/environments/environment.example.ts src/environments/environment.ts
-# Add your Groq API key to environment.ts
+```
 
-npm install
+On Windows (PowerShell):
+
+```powershell
+Copy-Item src/environments/environment.example.ts src/environments/environment.ts
+```
+
+Open `src/environments/environment.ts` and replace `YOUR_GROQ_API_KEY` with your key from [console.groq.com](https://console.groq.com/).
+
+### Run the app
+
+```bash
 npm start
 ```
 
-Open `http://localhost:4200/`. You need the [Phantom](https://phantom.app/) wallet with devnet SOL to mint credentials.
+Open `http://localhost:4200/`. You need the [Phantom](https://phantom.app/) browser extension on **Devnet** with free SOL from [faucet.solana.com](https://faucet.solana.com/) to mint credentials.
 
 ## Features
 
@@ -45,7 +67,7 @@ Open `http://localhost:4200/`. You need the [Phantom](https://phantom.app/) wall
 
 ## Note on API keys
 
-The Groq API key is loaded client-side for this hackathon demo. It is visible in the browser bundle — use a dedicated key and rotate after the event.
+The Groq API key is loaded client-side for this hackathon demo. It is visible in the browser bundle — use a dedicated key and rotate after the event. **Never commit `environment.ts`**; only `environment.example.ts` belongs in git.
 
 ## Phantom wallet note
 
